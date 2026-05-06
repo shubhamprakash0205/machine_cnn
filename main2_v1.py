@@ -102,7 +102,7 @@ class sevenpixels:
 		self.grd_dict = []
 		self.padded_a0 = []
 		self.countt = np.array([1])
-		self.learn_rate = 0.00001
+		self.learn_rate = 0.00000001
 		
 		for i in range(1,2):
 			self.original_img_dict.append(cv2.imread(f'files/seven_pixels_training/jhn.jpg'))
@@ -339,7 +339,8 @@ class sevenpixels:
 		#da7 = 
 		#print(self.layer7_a7[0].shape,self.grd_dict[0].shape)
 		#dz7 = a7-y
-		self.dz7 = (anti_padding(self.padded_a7[0]) - self.grd_dict[0]).astype(np.float32)
+		#downside normalised the grd_dict also between 0 and 1 
+		self.dz7 = (anti_padding(self.padded_a7[0]) - self.grd_dict[0]/255).astype(np.float32)
 		print(self.dz7.shape)
 		
 		#dw7 = dz7 * a6
@@ -356,11 +357,15 @@ class sevenpixels:
 			self.da6.append(myfull_convolution(self.dz7,self.pixel7s_w[0][i]))
 		self.da6 = np.array(self.da6)
 		#dz6 = da6 * (a6(1-a6))
-		#dz6 = da6 * -1 ,z6<0
+		#dz6 = da6 * 0.0001 ,z6<0
 		#dz6 = da6 * 1 ,z6>=0
+		#dz6 = da6 * 1/2sq.root(90+x)
+		
 		self.dz6 = [] #list of 7elements. each element is (height-2 * width -2 * num_channel)
 		for i in range(7):
-			self.dz6.append(anti_padding(self.da6[i]) * np.where(self.layer6_z6[i]<0,-1,1))
+			f = np.where(self.layer6_z6[i]>10,1/(2*np.sqrt(90+self.layer6_z6[i])),1)
+			f = np.where(self.layer6_z6[i]<0,0.0001,f)
+			self.dz6.append(anti_padding(self.da6[i]) * f)
 		self.dz6 = np.array(self.dz6)
 		#dw6 = dz6 * a5
 		self.dw6 = [] # list of 7elements . again each element has 7 dw of size 3*3
@@ -386,7 +391,10 @@ class sevenpixels:
 		#dz5 = da5 * 1,z6>=0
 		self.dz5 = [] #7 elements, each being (height-2 * width - 2)
 		for i in range(7):
-			self.dz5.append(anti_padding(self.da5[i]) * np.where(self.layer5_z5[i]<0,-1,1))
+			f = np.where(self.layer5_z5[i]>10,1/(2*np.sqrt(90+self.layer5_z5[i])),1)
+			f = np.where(self.layer5_z5[i]<0,0.0001,f)
+			self.dz5.append(anti_padding(self.da5[i]) * f)
+		
 		self.dz5 = np.array(self.dz5)
 		#dw5 = dz5 * a4
 		self.dw5 = [] # 7 elements , again each element has 7dws . each of size 3 * 3
@@ -410,7 +418,10 @@ class sevenpixels:
 		
 		self.dz4 = []
 		for i in range(7):
-			self.dz4.append(anti_padding(self.da4[i]) * np.where(self.layer4_z4[i]<0,-1,1))
+			f = np.where(self.layer4_z4[i]>10,1/(2*np.sqrt(90+self.layer4_z4[i])),1)
+			f = np.where(self.layer4_z4[i]<0,0.0001,f)
+			self.dz4.append(anti_padding(self.da4[i]) * f)
+		
 		self.dz4 = np.array(self.dz4) # 7elements, each being (height-2 * width -2)
 		#dw4 = dz4 * a3
 		self.dw4 = []
@@ -435,7 +446,10 @@ class sevenpixels:
 		
 		self.dz3 = []
 		for i in range(7):
-			self.dz3.append(anti_padding(self.da3[i]) * np.where(self.layer3_z3[i]<0,-1,1))
+			f = np.where(self.layer3_z3[i]>10,1/(2*np.sqrt(90+self.layer3_z3[i])),1)
+			f = np.where(self.layer3_z3[i]<0,0.0001,f)
+			self.dz3.append(anti_padding(self.da3[i]) * f)
+		
 		self.dz3 = np.array(self.dz3) #7elements , each being (height-2,width-2)
 		#dw3 = dz3 * a2
 		self.dw3 = []
@@ -458,7 +472,10 @@ class sevenpixels:
 		#dz2 = da2 * (a2(1-a2))
 		self.dz2 = []
 		for i in range(7):
-			self.dz2.append(anti_padding(self.da2[i]) * np.where(self.layer2_z2[i]<0,-1,1))
+			f = np.where(self.layer2_z2[i]>10,1/(2*np.sqrt(90+self.layer2_z2[i])),1)
+			f = np.where(self.layer2_z2[i]<0,0.0001,f)
+			self.dz2.append(anti_padding(self.da2[i]) * f)
+		
 		self.dz2 = np.array(self.dz2)
 		#dw2 = dz2 * a1
 		self.dw2 = []
@@ -483,7 +500,10 @@ class sevenpixels:
 		
 		self.dz1 = []
 		for i in range(7):
-			self.dz1.append(anti_padding(self.da1[i]) * np.where(self.layer1_z1[i]<0,-1,1))
+			f = np.where(self.layer1_z1[i]>10,1/(2*np.sqrt(90+self.layer1_z1[i])),1)
+			f = np.where(self.layer1_z1[i]<0,0.0001,f)
+			self.dz1.append(anti_padding(self.da1[i]) * f)
+		
 		self.dz1 = np.array(self.dz1)
 		#dw1 = dz1 * a0
 		self.dw1 = []
@@ -499,19 +519,46 @@ class sevenpixels:
 	
 	def status_update(self,forward_layer,countt_update):
 		print(f'self.countt: {self.countt} ; layer: {self.forward_state}_completed')
-		#self.show()
+		self.show()
 		self.countt = self.countt + 1 if countt_update != None else self.countt
 		fx = 'files/test_result/7pixels/max_min_checkpoint.txt'
 		ff = 'files/test_result/7pixels/xcheckpoint.npz'
+		
+		try:
+			t = self.dw1 
+		except:
+			self.dw1 = [3]
+			self.dw2 = [3]
+			self.dw3 = [3]
+			self.dw4 = [3]
+			self.dw5 = [3] 
+			self.dw6 = [3]
+			self.dw7 = [3]
+		else:
+			pass
+		
+		
 		with open(fx,'a') as d:
-			d.write(f"""counttt: {self.countt} max_a0 = {(np.min(self.padded_a0),np.max(self.padded_a0))}
+			d.write(f"""
+			        
+			        counttt: {self.countt} max_a0 = {(np.min(self.padded_a0),np.max(self.padded_a0))}
 				max_a1 = {(np.min(self.padded_a1),np.max(self.padded_a1))}
 				max_a2 = {(np.min(self.padded_a2),np.max(self.padded_a2))}
 				max_a3 = {(np.min(self.padded_a3),np.max(self.padded_a3))}
 				max_a4 = {(np.min(self.padded_a4),np.max(self.padded_a4))}
 				max_a5 = {(np.min(self.padded_a5),np.max(self.padded_a5))}
 				max_a6 = {(np.min(self.padded_a6),np.max(self.padded_a6))}
-				max_a7 = {(np.min(self.padded_a7),np.max(self.padded_a7))}""")
+				max_a7 = {(np.min(self.padded_a7),np.max(self.padded_a7))}
+				
+				max_dw1 = {np.max(self.dw1)}
+			     max_dw2 = {np.max(self.dw2)}
+			     max_dw3 = {np.max(self.dw3)}
+			     max_dw4 = {np.max(self.dw4)}
+			     max_dw5 = {np.max(self.dw5)}
+			     max_dw6 = {np.max(self.dw6)}
+			     max_dw7 = {np.max(self.dw7)}
+			     
+			      """)
 				
 		np.savez_compressed(ff,pixel1s_w = self.pixel1s_w,
 				pixel2s_w = self.pixel2s_w,
@@ -563,10 +610,32 @@ class sevenpixels:
 			if self.processing_stage == 'BACKWARD_C':	
 				self.backward_update()
 			
+			#0.00001 * 10000
+			#clipping to control dws
+			self.dw1 = np.clip(self.dw1,-10000,10000)
+			self.dw2 = np.clip(self.dw2,-10000,10000)
+			self.dw3 = np.clip(self.dw3,-10000,10000)
+			self.dw4 = np.clip(self.dw4,-10000,10000)
+			self.dw5 = np.clip(self.dw5,-10000,10000)
+			self.dw6 = np.clip(self.dw6,-10000,10000)
+			self.dw7 = np.clip(self.dw7,-10000,10000)
+			self.db1 = np.clip(self.db1,-10000,10000)
+			self.db2 = np.clip(self.db2,-10000,10000)
+			self.db3 = np.clip(self.db3,-10000,10000)
+			self.db4 = np.clip(self.db4,-10000,10000)
+			self.db5 = np.clip(self.db5,-10000,10000)
+			self.db6 = np.clip(self.db6,-10000,10000)
+			self.db7 = np.clip(self.db7,-10000,10000)
+			 						
+			
+			
 			for y in range(7):
 				print(self.pixel1s_w[y].shape,self.dw1[y][0].shape,'backdrop one hehe')
 				self.pixel1s_w[y] = self.pixel1s_w[y] - self.learn_rate * self.dw1[y][0]
+			
 			print(self.pixel2s_w.shape,self.dw2.shape,'backdrop one hehe')
+			#print(self.dw2[0][0])
+			#print(self.db2[0][0])
 			self.pixel2s_w = self.pixel2s_w - self.learn_rate * self.dw2
 			self.pixel3s_w = self.pixel3s_w - self.learn_rate * self.dw3
 			self.pixel4s_w = self.pixel4s_w - self.learn_rate * self.dw4
@@ -736,6 +805,15 @@ class sevenpixels:
 			self.layer4_z4 = []
 			self.layer5_z5 = []
 			self.layer6_z6 = []
+			
+			
+			self.dw1 = [3]
+			self.dw2 = [3]
+			self.dw3 = [3]
+			self.dw4 = [3]
+			self.dw5 = [3]
+			self.dw6 = [3]
+			self.dw7 = [3]
 						
 
 		
@@ -744,7 +822,195 @@ p1.initiate()
 p1.real_update()
 
 		
+	
+def xman_show(xcheckpoint):
+	
+	x_image = cv2.imread(f'files/seven_pixels_training/jhn.jpg')	
+	a0 = x_image/255
+	
+
+	checkpoint = np.load(xcheckpoint)
+	pixel1s_w = checkpoint['pixel1s_w']
+	pixel2s_w = checkpoint['pixel2s_w']
+	pixel3s_w = checkpoint['pixel3s_w']
+	pixel4s_w = checkpoint['pixel4s_w']
+	pixel5s_w = checkpoint['pixel5s_w']
+	pixel6s_w = checkpoint['pixel6s_w']
+	pixel7s_w = checkpoint['pixel7s_w']
+	pixel1s_b = checkpoint['pixel1s_b']
+	pixel2s_b = checkpoint['pixel2s_b']
+	pixel3s_b = checkpoint['pixel3s_b']
+	pixel4s_b = checkpoint['pixel4s_b']
+	pixel5s_b = checkpoint['pixel5s_b']
+	pixel6s_b = checkpoint['pixel6s_b']
+	pixel7s_b = checkpoint['pixel7s_b']
+	
+	padded_a0 = checkpoint['padded_a0']
+	padded_a1 = checkpoint['padded_a1']
+	padded_a2 = checkpoint['padded_a2']
+	padded_a3 = checkpoint['padded_a3']
+	padded_a4 = checkpoint['padded_a4']
+	padded_a5 = checkpoint['padded_a5']
+	padded_a6 = checkpoint['padded_a6']
+	padded_a7 = checkpoint['padded_a7']
+	
+	
+	"""
+	layer1 = []
+	for i in range(7):
+		net_sum = myconvolution(a0,pixel1s_w[i]) + pixel1s_b[i]
+		net_sum = np.where(net_sum<=0,0.0001*net_sum,net_sum)
+		net_sum = np.where(net_sum>10,np.sqrt(90+net_sum),net_sum)
+
+		layer1.append(mypadding(net_sum,3))
+	layer1 = np.array(layer1)
+	
+	print('layer1 calcultions completed')
+	
+	layer2 = []
+	for i in range(7):
+		net_sum = 0
+		for y in range(7):
+			df = myconvolution(layer1[y],pixel2s_w[i][y]) + pixel2s_b[i][y]
+			net_sum = df + net_sum
 		
+		net_sum = np.where(net_sum<=0,0.0001*net_sum,net_sum)
+		net_sum = np.where(net_sum>10,np.sqrt(90+net_sum),net_sum)
+		
+		layer2.append(mypadding(net_sum,3))
+	layer2 = np.array(layer2)
+	
+	print('layer2 calculations completed ')
+	
+	layer3 = []
+	for i in range(7):
+		net_sum = 0
+		for y in range(7):
+			df = myconvolution(layer2[y],pixel3s_w[i][y]) + pixel3s_b[i][y]
+			net_sum = df + net_sum
+		
+		net_sum = np.where(net_sum<=0,0.0001*net_sum,net_sum)
+		net_sum = np.where(net_sum>10,np.sqrt(90+net_sum),net_sum)
+		
+		layer3.append(mypadding(net_sum,3))
+	layer3 = np.array(layer3)
+	
+	print('layer3 calculations completed ')
+	
+	layer4 = []
+	for i in range(7):
+		net_sum = 0
+		for y in range(7):
+			df = myconvolution(layer3[y],pixel4s_w[i][y]) + pixel4s_b[i][y]
+			net_sum = df + net_sum
+		
+		net_sum = np.where(net_sum<=0,0.0001*net_sum,net_sum)
+		net_sum = np.where(net_sum>10,np.sqrt(90+net_sum),net_sum)
+		
+		layer4.append(mypadding(net_sum,3))
+	layer4 = np.array(layer4)
+	
+	print('layer4 calculations completed :')
+	
+	layer5 = []
+	for i in range(7):
+		net_sum = 0
+		for y in range(7):
+			df = myconvolution(layer4[y],pixel5s_w[i][y]) + pixel5s_b[i][y]
+			net_sum = df + net_sum
+		
+		net_sum = np.where(net_sum<=0,0.0001*net_sum,net_sum)
+		net_sum = np.where(net_sum>10,np.sqrt(90+net_sum),net_sum)
+		
+		layer5.append(mypadding(net_sum,3))
+	layer5 = np.array(layer5)
+	
+	print('layer5 calculations completed ')
+	
+	layer6 = []
+	for i in range(7):
+		net_sum = 0
+		for y in range(7):
+			df = myconvolution(layer5[y],pixel6s_w[i][y]) + pixel6s_b[i][y]
+			net_sum = df + net_sum
+		
+		net_sum = np.where(net_sum<=0,0.0001*net_sum,net_sum)
+		net_sum = np.where(net_sum>10,np.sqrt(90+net_sum),net_sum)
+		
+		layer6.append(mypadding(net_sum,3))
+	layer6 = np.array(layer6)
+	
+	print('layer6 calculations completed ')
+	
+	layer7 = []
+	net_sum = 0
+	for y in range(7):
+		df = myconvolution(layer6[y],pixel7s_w[0][y]) + pixel7s_b[0][y]
+		net_sum = df + net_sum
+	 
+	net_sum = 1/(1+np.exp(-net_sum))
+	layer7.append(mypadding(net_sum,3))
+	layer7 = np.array(layer7)
+	
+	print('layer7 calculations completed :')
+	print()
+	"""
+	"""
+	print('a1:',np.min(layer1),np.max(layer1))
+	print('a2:',np.min(layer2),np.max(layer2))
+	print('a3:',np.min(layer3),np.max(layer3))
+	print('a4:',np.min(layer4),np.max(layer4))
+	print('a5:',np.min(layer5),np.max(layer5))
+	print('a6:',np.min(layer6),np.max(layer6))
+	print('a7:',np.min(layer7),np.max(layer7))
+	"""
+	print('a1:',np.min(padded_a1),np.max(padded_a1))
+	print('a2:',np.min(padded_a2),np.max(padded_a2))
+	print('a3:',np.min(padded_a3),np.max(padded_a3))
+	print('a4:',np.min(padded_a4),np.max(padded_a4))
+	print('a5:',np.min(padded_a5),np.max(padded_a5))
+	print('a6:',np.min(padded_a6),np.max(padded_a6))
+	print('a7:',np.min(padded_a7),np.max(padded_a7))
+
+	
+	#layers = [layer1,layer2,layer3,layer4,layer5,layer6]
+	padded_layers = [padded_a1,padded_a2,padded_a3,padded_a4,padded_a5,padded_a6]
+	
+	
+	for t in range(6):
+		"""
+		for s in range(7):
+			plt.subplot(1,7,s+1)
+			plt.imshow(layers[t][s])
+			plt.title(f'layer{t+1}{s+1}')
+		plt.show()
+		"""
+		for s in range(7):
+			plt.subplot(1,7,s+1)
+			plt.imshow(padded_layers[t][s])
+			plt.title(f'layer{t+1}{s+1}')
+		plt.show()
+	
+	"""
+	plt.subplot(1,1,1)
+	plt.imshow(layer7[0])
+	plt.title('final')
+	plt.show()	
+	"""
+	
+	plt.subplot(1,1,1)
+	plt.imshow(padded_a7[0])
+	plt.title('final_padded')
+	plt.show()	
+
+	
+	
+		
+
+
+#tf  = f'files/test_result/7pixels/xcheckpoint.npz'	
+#xman_show(tf)		
+
 		
 		
 		
@@ -782,5 +1048,6 @@ p1.real_update()
 			
 	
 		
+
 
 

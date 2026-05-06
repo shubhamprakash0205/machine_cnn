@@ -374,3 +374,39 @@ print(array13.shape)
 print()
 print(array12 @ array13)
 
+x= np.random.randint(0,10,(8,1))
+y= np.random.randint(0,10,(3,))
+z= np.random.randint(0,10,3)
+
+print(np.random.random((1,3)))
+print(x)
+print(y)
+print(z)
+
+t = np.argmax(x)
+print(t)
+
+x2 = np.array([[3,4],[4,5],[4,1]])
+print(np.argmax(x2),x2.shape,np.max(x2))
+
+x3 = np.array([[1,2],[1,2],[1,3]])
+print(x2/x3)
+
+
+class test:
+	def mai(self,arg):
+		print('fff')
+	def mai2(self,t,t2):
+		print(t,t2)
+	def mai3(self,t5):
+		print(t,t5)
+	
+	def mai4(self):
+		self.mai('ravan')
+		self.mai2(2,3)
+		self.mai3(6)
+		
+f = test()
+f.mai4()
+
+
