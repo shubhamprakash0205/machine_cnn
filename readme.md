@@ -24,8 +24,8 @@ The goal of this project was to gain a deep understanding of how convolutional n
 
 ## Feature Maps
 
-![EPOCH 4970](files\test_result\7pixels\result_track\pptx/4970.png)
-![EPOCH 5017](files\test_result\7pixels\result_track\pptx/5017.png)
+![EPOCH 4970](files/test_result/7pixels/result_track/pptx/4970.png)
+![EPOCH 5017](files/test_result/7pixels/result_track/pptx/5017.png)
 
 ## Implemented Components
 ### Forward Propagation
