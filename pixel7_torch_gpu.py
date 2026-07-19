@@ -15,7 +15,7 @@ print(device)
 
 class image_dataset(Dataset):
 	def __init__(self,input_transform=None,grd_transform = None):
-		img_folder_path = 'files/torch7pixel'
+		img_folder_path = 'files/torch7pixel/resolution_images'
 		file_list = os.listdir(os.path.join(img_folder_path))
 		self.file_list = [os.path.join(img_folder_path,f) for f in file_list if os.path.isfile(os.path.join(img_folder_path,f))]
 		print(file_list)
@@ -26,13 +26,14 @@ class image_dataset(Dataset):
 		#return len(self.file_list)
 		return 1
 	def __getitem__(self,idx):
-		img = Image.open(self.file_list[:1][idx])
-		grd = Image.open(self.file_list[1:][idx])
+		img = Image.open(self.file_list[1:][idx])
+		grd = Image.open(self.file_list[:1][idx])
 		#print(self.file_list[:1][idx],self.file_list[1:][idx])
 		if self.input_transform:
 			img = self.input_transform(img)
 		if self.grd_transform:
 			grd = self.grd_transform(grd)
+		print(img.shape,grd.shape,'shapeee')
 		return img,grd
 
 input_transform = transforms.Compose([
@@ -44,6 +45,9 @@ grd_transform = transforms.Compose([
 
 myimg_dataset = image_dataset(input_transform = input_transform,grd_transform = grd_transform)
 myimg_dataloader = DataLoader(myimg_dataset)
+for i in myimg_dataset:
+	pass
+
 	
 class sevenpixels(nn.Module):
 	def __init__(self):
@@ -213,24 +217,23 @@ optimizer = optim.Adam(mypixel_model.parameters(),lr=1e-4)
 loss_func = nn.MSELoss()
 
 
-if os.path.exists('files/torch7pixel/result/torch7pixel_checkpoint.pth'):
-	checkpoint = torch.load('files/torch7pixel/result/torch7pixel_checkpoint.pth',map_location = device)
+if os.path.exists('files/torch7pixel/result/torch7pixel_resolution_checkpoint.pth'):
+	checkpoint = torch.load('files/torch7pixel/result/torch7pixel_resolution_checkpoint.pth',map_location = device)
 	mypixel_model.load_state_dict(checkpoint['model_state_dict'])
 	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])		
 	epoch_count = checkpoint['epoch_count']
 	prev_loss = checkpoint['loss']
 	
-batch = myimg_dataloader[0]
-input_i,output_o = batch
-input_i,output_o = input_i.to(device),output_o.to(device)
+
 
 def update_process():
 	xloss_sum = 0
-	while True:
+	for batch in myimg_dataloader:
 		input_i,output_o = batch
-		input_i,output_o = input_i,output_o
+		print('input-output-shape',input_i.shape,output_o.shape)
+		input_i,output_o = input_i.to(device),output_o.to(device)
 		prediction_o = mypixel_model(input_i)
-		#print(prediction_o.shape,output_o.shape)
+		print(prediction_o.shape,output_o.shape)
 		xloss = loss_func(prediction_o,output_o)
 		optimizer.zero_grad()
 		xloss.backward()
@@ -244,7 +247,7 @@ def update_process():
 	#print(f'epoch_count: {epoch_count}')
 	if epoch_count % 20 == 0:
 		print(f'epoch_count: {epoch_count}')
-		torch.save({'epoch_count':epoch_count,'model_state_dict':mypixel_model.state_dict(),'optimizer_state_dict':optimizer.state_dict(),'loss':xloss_sum},'files/torch7pixel/result/torch7pixel_checkpoint.pth')
+		torch.save({'epoch_count':epoch_count,'model_state_dict':mypixel_model.state_dict(),'optimizer_state_dict':optimizer.state_dict(),'loss':xloss_sum},'files/torch7pixel/result/torch7pixel_resolution_checkpoint.pth')
 		print('saved ....')
 		print(xloss_sum,'LOSS')
 	return xloss_sum
@@ -267,7 +270,7 @@ def main():
 
 def show():	
 	
-	checkpoint = torch.load('files/torch7pixel/result/torch7pixel_checkpoint.pth')
+	checkpoint = torch.load('files/torch7pixel/result/torch7pixel_resolution_checkpoint.pth',map_location=torch.device(device))
 	state_dict = checkpoint['model_state_dict']
 	#print(type(state_dict))
 	#print(state_dict)
@@ -302,7 +305,7 @@ def show():
 	layer7_a7_B = nn.LeakyReLU(negative_slope=1e-4)
 	
 	######
-	input_image = 'files/torch7pixel/17.jpg'
+	input_image = 'files/torch7pixel/resolution_images/low_resolution.png'
 	img = Image.open(input_image)
 	img = input_transform(img)
 	
@@ -388,7 +391,7 @@ def show():
 	
 
 	
-t = main()
+#t = main()
 #show()
 
 

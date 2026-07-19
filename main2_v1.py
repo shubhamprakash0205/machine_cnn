@@ -1005,9 +1005,14 @@ def xman_show(xcheckpoint):
 	plt.show()	
 	"""
 	
-	plt.subplot(1,1,1)
+	plt.subplot(1,2,1)
+	plt.imshow(a0)
+	plt.title('Original Image')
+
+	
+	plt.subplot(1,2,2)
 	plt.imshow(padded_a7[0])
-	plt.title('final_padded')
+	plt.title(f'final predicted output_{count}')
 	plt.show()	
 
 	
@@ -1023,7 +1028,7 @@ def xman_show(xcheckpoint):
 
 
 
-tf  = f'files/test_result/7pixels/xcheckpoint.npz'	
+tf  = f'files/test_result/7pixels/xcheckpoint_137.npz'	
 xman_show(tf)		
 
 		
