@@ -26,7 +26,6 @@ The goal of this project was to gain a deep understanding of how convolutional n
 
 ![EPOCH 4970](files/test_result/7pixels/result_track/pptx/4970.png)
 ![EPOCH 5017](files/test_result/7pixels/result_track/pptx/5017.png)
-![EPOCH 5017](files/test_result/7pixels/result_track/pptx/5017.png)
 
 ## Implemented Components
 ### Forward Propagation
@@ -58,10 +57,10 @@ The model was trained to learn horizontal flipping of Image with dimensions 481 
 Initially model was trained normally but due to slow nature , decided to start training the model from a stablized checkpoint . This checkpoint came from similar network structure built with Pytorch .
 Below images cover the original image  and generated image after training with this model to a particular epoch.  
 
-![EPOCH 5017](files\test_result/7pixels/result_track/5017.png)
-![EPOCH 5095](files\test_result/7pixels/result_track/5095.png)
-![EPOCH 5126](files\test_result/7pixels/result_track/5126.png)
-![EPOCH 5137](files\test_result/7pixels/result_track/5137.png)
+![EPOCH 5017](files/test_result/7pixels/result_track/5017.png)
+![EPOCH 5095](files/test_result/7pixels/result_track/5095.png)
+![EPOCH 5126](files/test_result/7pixels/result_track/5126.png)
+![EPOCH 5137](files/test_result/7pixels/result_track/5137.png)
 
 If you look and compare the both Images you can observe the final Image showing the movement nature.It looks network is trying to move the pixels . As this model was 7 layered only , the receptive field of this model is small so the information cant be carried upto last.
 ## Technical Challenges Solved
